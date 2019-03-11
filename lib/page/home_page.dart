@@ -5,6 +5,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_shop/ui/base_widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_easyrefresh/easy_refresh.dart';
+import 'package:flutter_easyrefresh/ball_pulse_header.dart';
 
 import '../service/service_method.dart';
 import '../ui/banner/banner_diy.dart';
@@ -26,11 +28,14 @@ class _HomePageState extends State<HomePage>
   @override
   bool get wantKeepAlive => true;
 
+  GlobalKey<RefreshFooterState> _footerKey = GlobalKey<RefreshFooterState>();
+  GlobalKey<RefreshHeaderState> _headerKey = GlobalKey<RefreshHeaderState>();
+  ScrollController _constroller = ScrollController();
 
   @override
-  void initState() {
-    _getHotGoods();
-    super.initState();
+  void dispose() {
+    _constroller.dispose();
+    super.dispose();
   }
 
   @override
@@ -38,7 +43,20 @@ class _HomePageState extends State<HomePage>
     return Container(
       child: Scaffold(
         appBar: AppBar(
-          title: Text("请求远程数据"),
+          title: GestureDetector(
+            child: Container(
+              //设置标题尽可能填充沾满，响应双击事件
+              child: Text("请求远程数据"),
+              width: double.maxFinite,
+              height: double.maxFinite,
+              alignment: Alignment.centerLeft,
+              decoration: BoxDecoration(color: Colors.transparent),
+            ),
+            onDoubleTap: () {
+              _constroller.animateTo(0,
+                  duration: Duration(milliseconds: 500), curve: Curves.ease);
+            },
+          ),
         ),
         body: FutureBuilder(
           future: getHomePageContent(),
@@ -60,18 +78,19 @@ class _HomePageState extends State<HomePage>
               String floor1Title =
                   data['data']['floor1Pic']['PICTURE_ADDRESS']; //楼层1的标题图片
               String floor2Title =
-                  data['data']['floor2Pic']['PICTURE_ADDRESS']; //楼层1的标题图片
+                  data['data']['floor2Pic']['PICTURE_ADDRESS']; //楼层2的标题图片
               String floor3Title =
-                  data['data']['floor3Pic']['PICTURE_ADDRESS']; //楼层1的标题图片
+                  data['data']['floor3Pic']['PICTURE_ADDRESS']; //楼层3的标题图片
               List<Map> floor1 =
                   (data['data']['floor1'] as List).cast(); //楼层1商品和图片
               List<Map> floor2 =
-                  (data['data']['floor2'] as List).cast(); //楼层1商品和图片
+                  (data['data']['floor2'] as List).cast(); //楼层2商品和图片
               List<Map> floor3 =
-                  (data['data']['floor3'] as List).cast(); //楼层1商品和图片
+                  (data['data']['floor3'] as List).cast(); //楼层3商品和图片
 
-              return SingleChildScrollView(
-                child: Column(
+              return EasyRefresh(
+                child: ListView(
+                  controller: _constroller,
                   children: <Widget>[
                     HomeBanner(swiperDataList: _swiperDataList),
                     TopNavigator(navigatorList: _navigatorList),
@@ -92,6 +111,49 @@ class _HomePageState extends State<HomePage>
                     _hotGoods(),
                   ],
                 ),
+                loadMore: () async {
+                  print('加载更多，，，，，，');
+                  var formPage = {'page': page};
+                  await getHomePageBeloContent(formPage).then((result) {
+                    var data = json.decode(result.toString());
+                    List<Map> newGoodsList = (data['data'] as List).cast();
+                    setState(() {
+                      _hotGoodsList.addAll(newGoodsList);
+                      page++;
+                    });
+                  });
+                },
+                onRefresh: () async {
+                  print('下拉刷新，，，，，，');
+                },
+                refreshFooter: ClassicsFooter(
+                  key: _footerKey,
+                  loadText: "上拉加载",
+                  loadReadyText: "释放加载",
+                  loadingText: "正在加载",
+                  loadedText: "加载结束",
+                  noMoreText: "没有更多数据",
+                  moreInfo: "更新于 %T",
+                  bgColor: Colors.transparent,
+                  textColor: Colors.pink,
+                  moreInfoColor: Colors.pink,
+                  showMore: true,
+                ),
+//                refreshHeader: BallPulseHeader(
+//                  key: _headerKey,
+//                ),
+                refreshHeader: ClassicsHeader(
+                  key: _headerKey,
+                  refreshText: "下拉刷新",
+                  refreshReadyText: "释放刷新",
+                  refreshingText: "正在刷新...",
+                  refreshedText: "刷新结束",
+                  moreInfo: "更新于 %T",
+                  bgColor: Colors.transparent,
+                  textColor: Colors.pink,
+                  moreInfoColor: Colors.pink,
+                  showMore: true,
+                ),
               );
             } else {
               return Center(
@@ -104,29 +166,13 @@ class _HomePageState extends State<HomePage>
     );
   }
 
-  void _getHotGoods() {
-    var formPage = {'page': page};
-    getHomePageBeloContent(formPage).then((result) {
-      var data = json.decode(result.toString());
-      List<Map> newGoodsList = (data['data'] as List).cast();
-      setState(() {
-        _hotGoodsList.addAll(newGoodsList);
-        page++;
-      });
-    });
-  }
-
-  Widget _hotGoods(){
+  Widget _hotGoods() {
     return Container(
       child: Column(
-        children: <Widget>[
-          hotTitle,
-          _wrapList()
-        ],
+        children: <Widget>[hotTitle, _wrapList()],
       ),
     );
   }
-
 
   Widget hotTitle = Container(
     margin: EdgeInsets.only(top: 10.0),
@@ -149,7 +195,8 @@ class _HomePageState extends State<HomePage>
             child: Card(
               elevation: 5, //阴影距离
               clipBehavior: Clip.hardEdge,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)), //卡片圆角
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5)), //卡片圆角
               child: Column(
                 children: <Widget>[
                   CachedNetworkImage(
@@ -188,7 +235,7 @@ class _HomePageState extends State<HomePage>
         spacing: 2,
         children: listWidget,
       );
-    }else{
+    } else {
       return Text('');
     }
   }
@@ -206,7 +253,10 @@ class LeaderPhone extends StatelessWidget {
     return Container(
       child: InkWell(
         onTap: _launchURL,
-        child: CachedNetworkImage(imageUrl: leaderImage,placeholder: PlaceholderWidget(),),
+        child: CachedNetworkImage(
+          imageUrl: leaderImage,
+          placeholder: PlaceholderWidget(),
+        ),
       ),
     );
   }
@@ -308,7 +358,10 @@ class FloorTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.all(8.0),
-      child: CachedNetworkImage(imageUrl: picAddres,placeholder: PlaceholderWidget(),),
+      child: CachedNetworkImage(
+        imageUrl: picAddres,
+        placeholder: PlaceholderWidget(),
+      ),
     );
   }
 }
@@ -357,11 +410,11 @@ class FloorContent extends StatelessWidget {
       width: ScreenUtil().setWidth(375),
       child: InkWell(
         onTap: () => print('点击了商品$img'),
-        child: CachedNetworkImage(imageUrl: img,placeholder: PlaceholderWidget(),),
+        child: CachedNetworkImage(
+          imageUrl: img,
+          placeholder: PlaceholderWidget(),
+        ),
       ),
     );
   }
 }
-
-
-

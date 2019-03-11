@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_easyrefresh/easy_refresh.dart';
 
+
+///默认展位图
 class PlaceholderWidget extends StatelessWidget {
   final double width;
   final double height;
@@ -21,3 +24,5 @@ class PlaceholderWidget extends StatelessWidget {
     );
   }
 }
+
+
