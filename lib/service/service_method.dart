@@ -33,5 +33,9 @@ Future getHomePageContent() async {
   return await request(Api.homePageContent, formData: formData);
 }
 
+//获取首页热卖商品
 Future getHomePageBeloContent(page) async =>
     await request(Api.homePageBelowConten, formData: page);
+
+//获取分类商品列表
+Future getCategory() async => await request(Api.getCategory);
