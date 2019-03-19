@@ -7,7 +7,10 @@ class ChildCategory with ChangeNotifier{
 
 
   getChildCategory(List<CategoryDataBxmallsubdto> list){
-    childCategoryList = list;
+    CategoryDataBxmallsubdto all = CategoryDataBxmallsubdto(mallsubid:'00',mallcategoryid: '00',comments: 'null',mallsubname: '全部' );
+
+    childCategoryList = [all];
+    childCategoryList.addAll(list);
     notifyListeners();
   }
 

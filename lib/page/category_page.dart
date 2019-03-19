@@ -95,7 +95,7 @@ class _LeftCategoryNavState extends State<LeftCategoryNav> {
         height: ScreenUtil().setHeight(100),
         alignment: Alignment.center,
         decoration: BoxDecoration(
-            color: currentIndex == index ? Colors.black26 : Colors.white,
+            color: currentIndex == index ? Color.fromRGBO(236, 236, 236, 1.0) : Colors.white,
             border:
                 Border(bottom: BorderSide(width: 1, color: Colors.black12))),
         child: Text(
