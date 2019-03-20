@@ -16,13 +16,30 @@ class TopNavigator extends StatelessWidget {
     return Container(
       height: ScreenUtil().setHeight(280),
       padding: EdgeInsets.all(3.0),
-      child: GridView.count(
-        physics: NeverScrollableScrollPhysics(),
-        crossAxisCount: 5,
-        padding: EdgeInsets.all(4.0),
-        children:
-            navigatorList.map((item) => _gridViewItem(context, item)).toList(),
+//      child: GridView.count(
+//        physics: NeverScrollableScrollPhysics(),
+//        crossAxisCount: 5,
+//        padding: EdgeInsets.all(4.0),
+//        children:
+//            navigatorList.map((item) => _gridViewItem(context, item)).toList(),
+//      ),
+      child: Table(
+        children: _buildChildren(context,navigatorList),
       ),
+    );
+  }
+
+  List<TableRow> _buildChildren(context,List list) {
+    return [
+      _buildTableRow(context,list.sublist(0,5)),
+      _buildTableRow(context,list.sublist(5, 10)),
+    ];
+  }
+
+  TableRow _buildTableRow(context, List list) {
+    return TableRow(
+      decoration: BoxDecoration(color: Colors.deepOrangeAccent.withOpacity(0.05)),
+      children: list.map((item)=>_gridViewItem(context, item)).toList(),
     );
   }
 
@@ -32,11 +49,12 @@ class TopNavigator extends StatelessWidget {
       child: Column(
         children: <Widget>[
           CachedNetworkImage(
-            imageUrl:item['image'],
+            imageUrl: item['image'],
             width: ScreenUtil().setWidth(95),
             placeholder: PlaceholderWidget(),
           ),
           Text(item['mallCategoryName']),
+          SizedBox(height: 8,)
         ],
       ),
     );

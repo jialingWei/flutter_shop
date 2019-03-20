@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
 
@@ -17,7 +18,8 @@ class PlaceholderWidget extends StatelessWidget {
       alignment: Alignment.center,
       child: Column(
         children: <Widget>[
-          CircularProgressIndicator(),
+//          CircularProgressIndicator(),
+          CupertinoActivityIndicator(),
           Text('努力加载中...', maxLines: 1, overflow: TextOverflow.ellipsis),
         ],
       ),
