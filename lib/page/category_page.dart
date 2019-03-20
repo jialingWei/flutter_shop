@@ -160,7 +160,9 @@ class _CategoryGoodsListState extends State<CategoryGoodsList> {
   @override
   void initState() {
     super.initState();
-    getMallGoods('4', '', 1);
+    getMallGoods('4', '', 1).then((value){
+
+    });
   }
 
   @override

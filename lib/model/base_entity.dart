@@ -8,7 +8,7 @@ class BaseEntity<T> {
 
   BaseEntity({this.code, this.data, this.message});
 
-  BaseEntity.fromJson(
+  static BaseEntity<T> fromJson<T>(
       result, Function(Map<String, dynamic> mapData) buildData) {
     Map<String, dynamic> jsonMap;
 
@@ -18,9 +18,10 @@ class BaseEntity<T> {
       jsonMap = result;
     }
 
-    code = jsonMap['code'] ?? -1;
-    message = jsonMap['message'] ?? 'empty message';
-    data = buildData(jsonMap['data']);
+    return BaseEntity(
+        code: jsonMap['code'] ?? -1,
+        message: jsonMap['message'] ?? 'empty message',
+        data: buildData(jsonMap['data']));
   }
 }
 
@@ -29,7 +30,8 @@ class BaseListEntity<T> extends BaseEntity<List<T>> {
   BaseListEntity(String code, List<T> data, String message)
       : super(code: code, data: data, message: message);
 
-  BaseListEntity.fromJson(result, Function(Map<String, dynamic> jsonStr) buildData) {
+  static BaseListEntity<T> fromJson<T>(
+      result, Function(Map<String, dynamic> jsonStr) buildData) {
     Map<String, dynamic> jsonMap;
 
     if (result is String) {
@@ -38,9 +40,10 @@ class BaseListEntity<T> extends BaseEntity<List<T>> {
       jsonMap = result;
     }
 
-    code = jsonMap['code'] ?? -1;
-    message = jsonMap['message'] ?? 'empty message';
+    var code = jsonMap['code'] ?? -1;
+    var message = jsonMap['message'] ?? 'empty message';
     var dataJson = jsonMap['data'];
+    var data;
     if (dataJson == null) {
       data = null;
     } else {
@@ -52,5 +55,6 @@ class BaseListEntity<T> extends BaseEntity<List<T>> {
         data = List<T>.from(newList);
       }
     }
+    return BaseListEntity(code, data, message);
   }
 }

@@ -1,4 +1,4 @@
-import 'package:flutter_shop/model/BaseEntity.dart';
+import 'package:flutter_shop/model/base_entity.dart';
 
 class CategoryEntity {
   String code;
@@ -8,10 +8,9 @@ class CategoryEntity {
   CategoryEntity({this.code, this.data, this.message});
 
   CategoryEntity.fromJson(Map<String, dynamic> json) {
-    var baseListEntity = BaseListEntity.fromJson(json, (itemData) {
-      CategoryData.fromJson(itemData);
-    });
-    data = baseListEntity.data;
+    var baseListEntity = BaseListEntity.fromJson<CategoryData>(
+        json, (itemData) => CategoryData.fromJson(itemData));
+    code = baseListEntity.code;
     message = baseListEntity.message;
     data = baseListEntity.data;
   }
