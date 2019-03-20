@@ -5,5 +5,7 @@ abstract class Api {
 
   static final homePageBelowConten = 'wxmini/homePageBelowConten'; //商城首页热卖商品拉取
 
-  static final getCategory = 'wxmini/getCategory'; //商城首页热卖商品拉取
+  static final getCategory = 'wxmini/getCategory'; //商城分类信息
+
+  static final getMallGoods = 'wxmini/getMallGoods'; //商品分类具体商品列表信息
 }

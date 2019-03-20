@@ -37,5 +37,13 @@ Future getHomePageContent() async {
 Future getHomePageBeloContent(page) async =>
     await request(Api.homePageBelowConten, formData: page);
 
-//获取分类商品列表
+//获取分类商品信息
 Future getCategory() async => await request(Api.getCategory);
+
+//获取商品列表
+Future getMallGoods(String categoryId, String categorySubId, int page) async =>
+    await request(Api.getMallGoods, formData: {
+      'cagegoryId': categoryId,
+      'CategorySuubId': categorySubId,
+      'page': page
+    });

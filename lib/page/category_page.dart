@@ -28,6 +28,7 @@ class _CategoryPageState extends State<CategoryPage> {
             child: Column(
               children: <Widget>[
                 RightCategoryNav(),
+                CategoryGoodsList(),
               ],
             ),
           )
@@ -107,7 +108,7 @@ class _LeftCategoryNavState extends State<LeftCategoryNav> {
   }
 }
 
-///右侧导航
+///右侧顶部导航
 class RightCategoryNav extends StatefulWidget {
   @override
   _RightCategoryNavState createState() => _RightCategoryNavState();
@@ -146,5 +147,24 @@ class _RightCategoryNavState extends State<RightCategoryNav> {
         ),
       ),
     );
+  }
+}
+
+///右侧具体商品列表
+class CategoryGoodsList extends StatefulWidget {
+  @override
+  _CategoryGoodsListState createState() => _CategoryGoodsListState();
+}
+
+class _CategoryGoodsListState extends State<CategoryGoodsList> {
+  @override
+  void initState() {
+    super.initState();
+    getMallGoods('4', '', 1);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container();
   }
 }
