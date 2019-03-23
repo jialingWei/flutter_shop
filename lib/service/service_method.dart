@@ -1,7 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:flutter_shop/model/base_entity.dart';
+import 'package:flutter_shop/model/category_goods_list_entity.dart';
 import 'package:flutter_shop/service/http_service.dart';
 import 'api.dart';
 
@@ -41,9 +44,15 @@ Future getHomePageBeloContent(page) async =>
 Future getCategory() async => await request(Api.getCategory);
 
 //获取商品列表
-Future getMallGoods(String categoryId, String categorySubId, int page) async =>
-    await request(Api.getMallGoods, formData: {
-      'cagegoryId': categoryId,
-      'CategorySuubId': categorySubId,
-      'page': page
-    });
+Future<List<CategoryGoodsListData>> getMallGoods(
+    String categoryId, String categorySubId, int page) async {
+  var source = await request(Api.getMallGoods, formData: {
+    'cagegoryId': categoryId,
+    'CategorySuubId': categorySubId,
+    'page': page
+  });
+  print('doubleX---->$source');
+
+  return BaseListEntity.fromJson<CategoryGoodsListData>(
+      source, (mapData) => CategoryGoodsListData.fromJson(mapData)).data;
+}

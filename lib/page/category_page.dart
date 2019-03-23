@@ -161,7 +161,8 @@ class _CategoryGoodsListState extends State<CategoryGoodsList> {
   void initState() {
     super.initState();
     getMallGoods('4', '', 1).then((value){
-
+      print("doublex---->value.length:${value.length}");
+      value.forEach((item)=>print('doublex---->${item}'));
     });
   }
 
