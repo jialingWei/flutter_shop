@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_shop/config/cached_network_img.dart';
 import 'package:flutter_shop/ui/base_widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -199,10 +200,9 @@ class _HomePageState extends State<HomePage>
                   borderRadius: BorderRadius.circular(5)), //卡片圆角
               child: Column(
                 children: <Widget>[
-                  CachedNetworkImage(
-                    imageUrl: item['image'],
+                  CNImage.loadImg(
+                    imgUrl: item['image'],
                     width: ScreenUtil().setWidth(370),
-                    placeholder: PlaceholderWidget(),
                   ),
                   Text(
                     item['name'],

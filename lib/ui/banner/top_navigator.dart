@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_shop/config/cached_network_img.dart';
 import 'package:flutter_shop/ui/base_widgets.dart';
 
 class TopNavigator extends StatelessWidget {
@@ -24,37 +25,39 @@ class TopNavigator extends StatelessWidget {
 //            navigatorList.map((item) => _gridViewItem(context, item)).toList(),
 //      ),
       child: Table(
-        children: _buildChildren(context,navigatorList),
+        children: _buildChildren(context, navigatorList),
       ),
     );
   }
 
-  List<TableRow> _buildChildren(context,List list) {
+  List<TableRow> _buildChildren(context, List list) {
     return [
-      _buildTableRow(context,list.sublist(0,5)),
-      _buildTableRow(context,list.sublist(5, 10)),
+      _buildTableRow(context, list.sublist(0, 5)),
+      _buildTableRow(context, list.sublist(5, 10)),
     ];
   }
 
   TableRow _buildTableRow(context, List list) {
     return TableRow(
-      decoration: BoxDecoration(color: Colors.deepOrangeAccent.withOpacity(0.05)),
-      children: list.map((item)=>_gridViewItem(context, item)).toList(),
+      decoration:
+          BoxDecoration(color: Colors.deepOrangeAccent.withOpacity(0.05)),
+      children: list.map((item) => _gridViewItem(context, item)).toList(),
     );
   }
 
   Widget _gridViewItem(BuildContext context, item) {
     return InkWell(
-      onTap: () => print('点击了导航'),
+      onTap: () => print('点击了,导航'),
       child: Column(
         children: <Widget>[
-          CachedNetworkImage(
-            imageUrl: item['image'],
+          CNImage.loadImg(
+            imgUrl: item['image'],
             width: ScreenUtil().setWidth(95),
-            placeholder: PlaceholderWidget(),
           ),
           Text(item['mallCategoryName']),
-          SizedBox(height: 8,)
+          SizedBox(
+            height: 8,
+          )
         ],
       ),
     );

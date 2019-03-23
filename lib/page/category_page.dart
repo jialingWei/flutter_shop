@@ -1,8 +1,11 @@
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_shop/config/cached_network_img.dart';
 import 'package:flutter_shop/model/category_entity.dart';
+import 'package:flutter_shop/model/category_goods_list_entity.dart';
 
 import 'package:flutter_shop/service/service_method.dart';
 import 'package:flutter_shop/provide/child_category.dart';
@@ -74,7 +77,7 @@ class _LeftCategoryNavState extends State<LeftCategoryNav> {
     await getCategory().then((value) {
       var rep = json.decode(value.toString());
       CategoryEntity categoryList = CategoryEntity.fromJson(rep);
-      categoryList.data.forEach((item) => print(item.mallcategoryname));
+//      categoryList.data.forEach((item) => print(item.mallcategoryname));
       setState(() {
         list = categoryList.data;
         childRightList = list[currentIndex].bxmallsubdto;
@@ -96,9 +99,11 @@ class _LeftCategoryNavState extends State<LeftCategoryNav> {
         height: ScreenUtil().setHeight(100),
         alignment: Alignment.center,
         decoration: BoxDecoration(
-            color: currentIndex == index ? Color.fromRGBO(236, 236, 236, 1.0) : Colors.white,
+            color: currentIndex == index
+                ? Color.fromRGBO(236, 236, 236, 1.0)
+                : Colors.white,
             border:
-                Border(bottom: BorderSide(width: 1, color: Colors.black12))),
+            Border(bottom: BorderSide(width: 1, color: Colors.black12))),
         child: Text(
           list[index].mallcategoryname,
           style: TextStyle(fontSize: ScreenUtil().setSp(28)),
@@ -122,7 +127,7 @@ class _RightCategoryNavState extends State<RightCategoryNav> {
         decoration: BoxDecoration(
             color: Colors.white,
             border:
-                Border(bottom: BorderSide(width: 1, color: Colors.black12))),
+            Border(bottom: BorderSide(width: 1, color: Colors.black12))),
         height: ScreenUtil().setHeight(80),
         width: ScreenUtil().setWidth(570),
         child: ListView.builder(
@@ -157,17 +162,31 @@ class CategoryGoodsList extends StatefulWidget {
 }
 
 class _CategoryGoodsListState extends State<CategoryGoodsList> {
+  List<CategoryGoodsListData> list;
+
   @override
   void initState() {
     super.initState();
-    getMallGoods('4', '', 1).then((value){
-      print("doublex---->value.length:${value.length}");
-      value.forEach((item)=>print('doublex---->${item}'));
+    getMallGoods('4', '', 1).then((value) {
+      setState(() {});
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Container();
+  }
+
+  Widget _goodsImage(int index) {
+    return
+      CNImage.loadImg(
+        imgUrl: list[index].image,
+        width: ScreenUtil().setWidth(200),
+      );
+//      CachedNetworkImage(
+//      imageUrl: list[index].image,
+//      width: ScreenUtil().setWidth(200),
+//      placeholder: ,
+//    );
   }
 }
