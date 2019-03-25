@@ -9,6 +9,9 @@ import 'package:flutter_shop/model/category_entity.dart';
 import 'package:flutter_shop/model/category_goods_list_entity.dart';
 import 'package:flutter_shop/service/service_method.dart';
 
+var leftIndex = 0;
+var rightTopIndex = 1;
+
 class CategoryPage extends StatefulWidget {
   @override
   _CategoryPageState createState() => _CategoryPageState();
@@ -60,19 +63,17 @@ class _LeftCategoryNavState extends State<LeftCategoryNav> {
       var rep = json.decode(value.toString());
       CategoryEntity categoryList = CategoryEntity.fromJson(rep);
       var list = categoryList.data;
-      var initIndex = 0;
 
       Provide.value<CategoryProvider>(context)
 
         ///1.左侧分类导航
         ..setCategoryList(list)
-        ..setCurrentIndex(initIndex)
 
         ///2.根据左侧分类选中的右侧头部导航
-        ..setChildCategory(list[initIndex].bxmallsubdto)
+        ..setChildCategory(leftIndex)
 
         ///3.根据右侧头部导航选中item的对应商品列表  默认取第二个导航类的ID去取值
-        ..setGoodsList(list[initIndex].bxmallsubdto[1].mallcategoryid, '', 1);
+        ..setGoodsList(1,rightTopIndex);
     });
   }
 
@@ -85,7 +86,7 @@ class _LeftCategoryNavState extends State<LeftCategoryNav> {
       child: Provide<CategoryProvider>(builder: (context, child, data) {
         return ListView.builder(
           itemBuilder: (context, index) {
-            return _leftInkWell(index, data.currentIndex, data.categoryList);
+            return _leftInkWell(index, data.leftIndex, data.categoryList);
           },
           itemCount: data.categoryList.length,
         );
@@ -98,10 +99,8 @@ class _LeftCategoryNavState extends State<LeftCategoryNav> {
       onTap: () {
         var itemData = list[index];
         Provide.value<CategoryProvider>(context)
-          ..setCurrentIndex(index)
-          ..setChildCategory(itemData.bxmallsubdto)
-          ..setGoodsList(itemData.mallcategoryid,
-              itemData.bxmallsubdto[1].mallsubid, 1);
+          ..setChildCategory(index)
+          ..setGoodsList(1,rightTopIndex);
       },
       child: Container(
         height: ScreenUtil().setHeight(100),
@@ -142,21 +141,27 @@ class _RightCategoryNavState extends State<RightCategoryNav> {
             scrollDirection: Axis.horizontal,
             itemCount: data.childCategoryList.length,
             itemBuilder: (context, index) {
-              return _rightInkWell(data.childCategoryList[index]);
+              return _rightInkWell(
+                  data.childCategoryList[index], index == data.rightTopIndex,index);
             }),
       );
     });
   }
 
-  Widget _rightInkWell(CategoryDataBxmallsubdto item) {
+  Widget _rightInkWell(CategoryDataBxmallsubdto item, bool isCheck,int index) {
     return InkWell(
-      onTap: () {},
+      onTap: () {
+        Provide.value<CategoryProvider>(context).setGoodsList(1,index);
+
+      },
       child: Container(
         alignment: Alignment.center,
         padding: EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
         child: Text(
           item.mallsubname,
-          style: TextStyle(fontSize: ScreenUtil().setSp(28)),
+          style: TextStyle(
+              fontSize: ScreenUtil().setSp(28),
+              color: isCheck ? Colors.red : Colors.black),
         ),
       ),
     );
@@ -183,20 +188,6 @@ class _CategoryGoodsListState extends State<CategoryGoodsList> {
         );
       },
     );
-
-//    return FutureBuilder(
-//      future: getMallGoods('4', '', 1),
-//      builder: (context, AsyncSnapshot<List<CategoryGoodsListData>> snapshot) {
-//        if (snapshot.hasData) {
-//          return ListView.builder(
-//            itemBuilder: (context, index) => _itemWidget(snapshot.data[index]),
-//            itemCount: snapshot.data.length,
-//          );
-//        } else {
-//          return PlaceholderWidget();
-//        }
-//      },
-//    );
   }
 
   Widget _itemWidget(CategoryGoodsListData item) {
@@ -229,6 +220,7 @@ class _CategoryGoodsListState extends State<CategoryGoodsList> {
       imgUrl: item.image,
       width: ScreenUtil().setWidth(200),
     );
+//  return Image.network(item.image,width: ScreenUtil().setWidth(200));
   }
 
   Widget _goodsName(CategoryGoodsListData item) {

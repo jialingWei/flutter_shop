@@ -4,7 +4,8 @@ import 'package:flutter_shop/model/category_goods_list_entity.dart';
 import 'package:flutter_shop/service/service_method.dart';
 
 class CategoryProvider with ChangeNotifier {
-  int currentIndex = 0;
+  int leftIndex = 0;
+  int rightTopIndex = 1;
 
   //左侧导航
   List<CategoryData> categoryList = [];
@@ -15,34 +16,31 @@ class CategoryProvider with ChangeNotifier {
   //右侧商品列表
   List<CategoryGoodsListData> categoryGoodsList = [];
 
-  //点击大类时，根据大类ID信息获取商品列表
   setCategoryList(List<CategoryData> list) {
-    categoryList = list;
+    categoryList = list ?? [];
     notifyListeners();
   }
 
-  setCurrentIndex(int index) {
-    currentIndex = index;
-    notifyListeners();
-  }
 
-  setChildCategory(List<CategoryDataBxmallsubdto> list) {
+  setChildCategory(int index) {
     CategoryDataBxmallsubdto all = CategoryDataBxmallsubdto(
         mallsubid: '00',
         mallcategoryid: '00',
         comments: 'null',
         mallsubname: '全部');
 
+    leftIndex = index;
     childCategoryList = [all];
-    childCategoryList.addAll(list);
+    childCategoryList.addAll(categoryList[leftIndex].bxmallsubdto);
     notifyListeners();
   }
 
   //点击大类时，根据大类ID信息获取商品列表
-  setGoodsList(String categoryId, String categorySubId, int page) {
-    print('DoubleX---->categoryId:$categoryId');
-    getMallGoods(categoryId, categorySubId, page).then((value) {
-      categoryGoodsList = value;
+  setGoodsList(int page, int index) {
+    CategoryDataBxmallsubdto item = childCategoryList[index];
+    getMallGoods(item.mallcategoryid, item.mallsubid, page).then((value) {
+      categoryGoodsList = value ?? [];
+      rightTopIndex = index;
       notifyListeners();
     });
   }
