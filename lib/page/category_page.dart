@@ -31,7 +31,10 @@ class _CategoryPageState extends State<CategoryPage> {
             child: Column(
               children: <Widget>[
                 RightCategoryNav(),
-                CategoryGoodsList(),
+                Expanded(
+                  flex: 1,
+                  child: CategoryGoodsList(),
+                ),
               ],
             ),
           )
@@ -103,7 +106,7 @@ class _LeftCategoryNavState extends State<LeftCategoryNav> {
                 ? Color.fromRGBO(236, 236, 236, 1.0)
                 : Colors.white,
             border:
-            Border(bottom: BorderSide(width: 1, color: Colors.black12))),
+                Border(bottom: BorderSide(width: 1, color: Colors.black12))),
         child: Text(
           list[index].mallcategoryname,
           style: TextStyle(fontSize: ScreenUtil().setSp(28)),
@@ -127,7 +130,7 @@ class _RightCategoryNavState extends State<RightCategoryNav> {
         decoration: BoxDecoration(
             color: Colors.white,
             border:
-            Border(bottom: BorderSide(width: 1, color: Colors.black12))),
+                Border(bottom: BorderSide(width: 1, color: Colors.black12))),
         height: ScreenUtil().setHeight(80),
         width: ScreenUtil().setWidth(570),
         child: ListView.builder(
@@ -167,26 +170,83 @@ class _CategoryGoodsListState extends State<CategoryGoodsList> {
   @override
   void initState() {
     super.initState();
-    getMallGoods('4', '', 1).then((value) {
-      setState(() {});
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return FutureBuilder(
+      future: getMallGoods('4', '', 1),
+      builder: (context, AsyncSnapshot<List<CategoryGoodsListData>> snapshot) {
+        if (snapshot.hasData) {
+          return ListView.builder(
+            itemBuilder: (context, index) => _itemWidget(snapshot.data[index]),
+            itemCount: snapshot.data.length,
+          );
+        } else {
+          return PlaceholderWidget();
+        }
+      },
+    );
   }
 
-  Widget _goodsImage(int index) {
-    return
-      CNImage.loadImg(
-        imgUrl: list[index].image,
-        width: ScreenUtil().setWidth(200),
-      );
-//      CachedNetworkImage(
-//      imageUrl: list[index].image,
-//      width: ScreenUtil().setWidth(200),
-//      placeholder: ,
-//    );
+  Widget _itemWidget(CategoryGoodsListData item) {
+    return InkWell(
+      onTap: () {},
+      child: Container(
+        padding: EdgeInsets.only(top: 5.0, bottom: 5.0),
+        decoration: BoxDecoration(
+            color: Colors.white,
+            border:
+                Border(bottom: BorderSide(width: 1.0, color: Colors.black12))),
+        child: Row(
+          children: <Widget>[
+            _goodsImage(item),
+            Expanded(
+              flex: 1,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[_goodsName(item), _goodsPrice(item)],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _goodsImage(CategoryGoodsListData item) {
+    return CNImage.loadImg(
+      imgUrl: item.image,
+      width: ScreenUtil().setWidth(200),
+    );
+  }
+
+  Widget _goodsName(CategoryGoodsListData item) {
+    return Container(
+      child: Text(
+        item.goodsname,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(fontSize: ScreenUtil().setSp(28)),
+      ),
+    );
+  }
+
+  Widget _goodsPrice(CategoryGoodsListData item) {
+    return Container(
+        margin: EdgeInsets.only(top: 20.0),
+        width: ScreenUtil().setWidth(370),
+        child: Row(children: <Widget>[
+          Text(
+            '价格:￥${item.presentprice}',
+            style:
+                TextStyle(color: Colors.pink, fontSize: ScreenUtil().setSp(30)),
+          ),
+          Text(
+            '￥${item.oriprice}',
+            style: TextStyle(
+                color: Colors.black26, decoration: TextDecoration.lineThrough),
+          )
+        ]));
   }
 }
