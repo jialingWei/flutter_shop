@@ -21,7 +21,7 @@ class HttpService {
         ..interceptors.addAll([
           //拦截器，处理公共逻辑
           HeaderInterceptor(),
-          LogInterceptor(request: true,responseHeader: true,responseBody: true),
+          LogInterceptor(request: true,requestBody: true,responseHeader: true,responseBody: true),
         ]);
 }
 

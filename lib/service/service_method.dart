@@ -13,7 +13,6 @@ Future request(String url, {formData}) async {
     print('开始获取数据。。。。。url:$url');
     Response rep;
 
-    var formData = {'lon': '115.02932', 'lat': '35.76189'};
 
     if (formData == null)
       rep = await HttpService.instance().dio.post(url);
@@ -51,8 +50,6 @@ Future<List<CategoryGoodsListData>> getMallGoods(
     'CategorySuubId': categorySubId,
     'page': page
   });
-  print('doubleX---->$source');
-
   return BaseListEntity.fromJson<CategoryGoodsListData>(
       source, (mapData) => CategoryGoodsListData.fromJson(mapData)).data;
 }

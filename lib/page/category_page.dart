@@ -1,15 +1,13 @@
 import 'dart:convert';
-
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_shop/provide/category.dart';
+import 'package:provide/provide.dart';
+
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_shop/config/cached_network_img.dart';
 import 'package:flutter_shop/model/category_entity.dart';
 import 'package:flutter_shop/model/category_goods_list_entity.dart';
-
 import 'package:flutter_shop/service/service_method.dart';
-import 'package:flutter_shop/provide/child_category.dart';
-import 'package:provide/provide.dart';
 
 class CategoryPage extends StatefulWidget {
   @override
@@ -51,14 +49,31 @@ class LeftCategoryNav extends StatefulWidget {
 }
 
 class _LeftCategoryNavState extends State<LeftCategoryNav> {
-  List<CategoryData> list = [];
-  int currentIndex = 0;
-  List<CategoryDataBxmallsubdto> childRightList = [];
-
   @override
   void initState() {
-    _loadCategoryList();
+    _initData();
     super.initState();
+  }
+
+  void _initData() async {
+    await getCategory().then((value) {
+      var rep = json.decode(value.toString());
+      CategoryEntity categoryList = CategoryEntity.fromJson(rep);
+      var list = categoryList.data;
+      var initIndex = 0;
+
+      Provide.value<CategoryProvider>(context)
+
+        ///1.左侧分类导航
+        ..setCategoryList(list)
+        ..setCurrentIndex(initIndex)
+
+        ///2.根据左侧分类选中的右侧头部导航
+        ..setChildCategory(list[initIndex].bxmallsubdto)
+
+        ///3.根据右侧头部导航选中item的对应商品列表  默认取第二个导航类的ID去取值
+        ..setGoodsList(list[initIndex].bxmallsubdto[1].mallcategoryid, '', 1);
+    });
   }
 
   @override
@@ -67,36 +82,26 @@ class _LeftCategoryNavState extends State<LeftCategoryNav> {
       width: ScreenUtil().setWidth(180),
       decoration: BoxDecoration(
           border: Border(right: BorderSide(width: 1, color: Colors.black12))),
-      child: ListView.builder(
-        itemBuilder: (context, index) {
-          return _leftInkWell(index);
-        },
-        itemCount: list.length,
-      ),
+      child: Provide<CategoryProvider>(builder: (context, child, data) {
+        return ListView.builder(
+          itemBuilder: (context, index) {
+            return _leftInkWell(index, data.currentIndex, data.categoryList);
+          },
+          itemCount: data.categoryList.length,
+        );
+      }),
     );
   }
 
-  void _loadCategoryList() async {
-    await getCategory().then((value) {
-      var rep = json.decode(value.toString());
-      CategoryEntity categoryList = CategoryEntity.fromJson(rep);
-//      categoryList.data.forEach((item) => print(item.mallcategoryname));
-      setState(() {
-        list = categoryList.data;
-        childRightList = list[currentIndex].bxmallsubdto;
-        Provide.value<ChildCategory>(context).getChildCategory(childRightList);
-      });
-    });
-  }
-
-  Widget _leftInkWell(int index) {
+  Widget _leftInkWell(int index, int currentIndex, List<CategoryData> list) {
     return InkWell(
       onTap: () {
-        var childList = list[index].bxmallsubdto;
-        Provide.value<ChildCategory>(context).getChildCategory(childList);
-        setState(() {
-          currentIndex = index;
-        });
+        var itemData = list[index];
+        Provide.value<CategoryProvider>(context)
+          ..setCurrentIndex(index)
+          ..setChildCategory(itemData.bxmallsubdto)
+          ..setGoodsList(itemData.mallcategoryid,
+              itemData.bxmallsubdto[1].mallsubid, 1);
       },
       child: Container(
         height: ScreenUtil().setHeight(100),
@@ -125,7 +130,7 @@ class RightCategoryNav extends StatefulWidget {
 class _RightCategoryNavState extends State<RightCategoryNav> {
   @override
   Widget build(BuildContext context) {
-    return Provide<ChildCategory>(builder: (context, child, childCategory) {
+    return Provide<CategoryProvider>(builder: (context, child, data) {
       return Container(
         decoration: BoxDecoration(
             color: Colors.white,
@@ -135,9 +140,9 @@ class _RightCategoryNavState extends State<RightCategoryNav> {
         width: ScreenUtil().setWidth(570),
         child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            itemCount: childCategory.childCategoryList.length,
+            itemCount: data.childCategoryList.length,
             itemBuilder: (context, index) {
-              return _rightInkWell(childCategory.childCategoryList[index]);
+              return _rightInkWell(data.childCategoryList[index]);
             }),
       );
     });
@@ -168,25 +173,30 @@ class _CategoryGoodsListState extends State<CategoryGoodsList> {
   List<CategoryGoodsListData> list;
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: getMallGoods('4', '', 1),
-      builder: (context, AsyncSnapshot<List<CategoryGoodsListData>> snapshot) {
-        if (snapshot.hasData) {
-          return ListView.builder(
-            itemBuilder: (context, index) => _itemWidget(snapshot.data[index]),
-            itemCount: snapshot.data.length,
-          );
-        } else {
-          return PlaceholderWidget();
-        }
+    return Provide<CategoryProvider>(
+      builder: (context, child, data) {
+        return ListView.builder(
+          itemBuilder: (context, index) =>
+              _itemWidget(data.categoryGoodsList[index]),
+          itemCount: data.categoryGoodsList.length,
+        );
       },
     );
+
+//    return FutureBuilder(
+//      future: getMallGoods('4', '', 1),
+//      builder: (context, AsyncSnapshot<List<CategoryGoodsListData>> snapshot) {
+//        if (snapshot.hasData) {
+//          return ListView.builder(
+//            itemBuilder: (context, index) => _itemWidget(snapshot.data[index]),
+//            itemCount: snapshot.data.length,
+//          );
+//        } else {
+//          return PlaceholderWidget();
+//        }
+//      },
+//    );
   }
 
   Widget _itemWidget(CategoryGoodsListData item) {
