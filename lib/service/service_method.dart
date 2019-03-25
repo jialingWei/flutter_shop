@@ -47,7 +47,7 @@ Future<List<CategoryGoodsListData>> getMallGoods(
     String categoryId, String categorySubId, int page) async {
   var source = await request(Api.getMallGoods, formData: {
     'cagegoryId': categoryId,
-    'CategorySuubId': categorySubId,
+    'categorySubId': categorySubId,
     'page': page
   });
   return BaseListEntity.fromJson<CategoryGoodsListData>(
