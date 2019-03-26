@@ -73,7 +73,7 @@ class _LeftCategoryNavState extends State<LeftCategoryNav> {
         ..setChildCategory(leftIndex)
 
         ///3.根据右侧头部导航选中item的对应商品列表  默认取第二个导航类的ID去取值
-        ..setGoodsList(1,rightTopIndex);
+        ..setGoodsList(1, rightTopIndex);
     });
   }
 
@@ -97,10 +97,9 @@ class _LeftCategoryNavState extends State<LeftCategoryNav> {
   Widget _leftInkWell(int index, int currentIndex, List<CategoryData> list) {
     return InkWell(
       onTap: () {
-        var itemData = list[index];
         Provide.value<CategoryProvider>(context)
           ..setChildCategory(index)
-          ..setGoodsList(1,rightTopIndex);
+          ..setGoodsList(1, rightTopIndex);
       },
       child: Container(
         height: ScreenUtil().setHeight(100),
@@ -141,18 +140,17 @@ class _RightCategoryNavState extends State<RightCategoryNav> {
             scrollDirection: Axis.horizontal,
             itemCount: data.childCategoryList.length,
             itemBuilder: (context, index) {
-              return _rightInkWell(
-                  data.childCategoryList[index], index == data.rightTopIndex,index);
+              return _rightInkWell(data.childCategoryList[index],
+                  index == data.rightTopIndex, index);
             }),
       );
     });
   }
 
-  Widget _rightInkWell(CategoryDataBxmallsubdto item, bool isCheck,int index) {
+  Widget _rightInkWell(CategoryDataBxmallsubdto item, bool isCheck, int index) {
     return InkWell(
       onTap: () {
-        Provide.value<CategoryProvider>(context).setGoodsList(1,index);
-
+        Provide.value<CategoryProvider>(context).setGoodsList(1, index);
       },
       child: Container(
         alignment: Alignment.center,
@@ -181,11 +179,16 @@ class _CategoryGoodsListState extends State<CategoryGoodsList> {
   Widget build(BuildContext context) {
     return Provide<CategoryProvider>(
       builder: (context, child, data) {
-        return ListView.builder(
-          itemBuilder: (context, index) =>
-              _itemWidget(data.categoryGoodsList[index]),
-          itemCount: data.categoryGoodsList.length,
-        );
+        if (data.categoryGoodsList.length == 0) {
+          return Center(
+            child: Text("暂无数据..."),
+          );
+        } else
+          return ListView.builder(
+            itemBuilder: (context, index) =>
+                _itemWidget(data.categoryGoodsList[index]),
+            itemCount: data.categoryGoodsList.length,
+          );
       },
     );
   }
