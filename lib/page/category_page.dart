@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyrefresh/easy_refresh.dart';
+import 'package:flutter_shop/config/easyrefresh_config.dart';
 import 'package:flutter_shop/provide/category.dart';
 import 'package:provide/provide.dart';
 
@@ -9,8 +11,7 @@ import 'package:flutter_shop/model/category_entity.dart';
 import 'package:flutter_shop/model/category_goods_list_entity.dart';
 import 'package:flutter_shop/service/service_method.dart';
 
-var leftIndex = 0;
-var rightTopIndex = 1;
+var rightTopIndex = 0;
 
 class CategoryPage extends StatefulWidget {
   @override
@@ -64,16 +65,7 @@ class _LeftCategoryNavState extends State<LeftCategoryNav> {
       CategoryEntity categoryList = CategoryEntity.fromJson(rep);
       var list = categoryList.data;
 
-      Provide.value<CategoryProvider>(context)
-
-        ///1.左侧分类导航
-        ..setCategoryList(list)
-
-        ///2.根据左侧分类选中的右侧头部导航
-        ..setChildCategory(leftIndex)
-
-        ///3.根据右侧头部导航选中item的对应商品列表  默认取第二个导航类的ID去取值
-        ..setGoodsList(1, rightTopIndex);
+      Provide.value<CategoryProvider>(context).initLeftList(list);
     });
   }
 
@@ -86,9 +78,9 @@ class _LeftCategoryNavState extends State<LeftCategoryNav> {
       child: Provide<CategoryProvider>(builder: (context, child, data) {
         return ListView.builder(
           itemBuilder: (context, index) {
-            return _leftInkWell(index, data.leftIndex, data.categoryList);
+            return _leftInkWell(index, data.leftIndex, data.leftCategoryList);
           },
-          itemCount: data.categoryList.length,
+          itemCount: data.leftCategoryList.length,
         );
       }),
     );
@@ -97,9 +89,7 @@ class _LeftCategoryNavState extends State<LeftCategoryNav> {
   Widget _leftInkWell(int index, int currentIndex, List<CategoryData> list) {
     return InkWell(
       onTap: () {
-        Provide.value<CategoryProvider>(context)
-          ..setChildCategory(index)
-          ..setGoodsList(1, rightTopIndex);
+        Provide.value<CategoryProvider>(context).setLeftCategoryList(index);
       },
       child: Container(
         height: ScreenUtil().setHeight(100),
@@ -138,9 +128,9 @@ class _RightCategoryNavState extends State<RightCategoryNav> {
         width: ScreenUtil().setWidth(570),
         child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            itemCount: data.childCategoryList.length,
+            itemCount: data.rightTopCategoryList.length,
             itemBuilder: (context, index) {
-              return _rightInkWell(data.childCategoryList[index],
+              return _rightInkWell(data.rightTopCategoryList[index],
                   index == data.rightTopIndex, index);
             }),
       );
@@ -150,7 +140,7 @@ class _RightCategoryNavState extends State<RightCategoryNav> {
   Widget _rightInkWell(CategoryDataBxmallsubdto item, bool isCheck, int index) {
     return InkWell(
       onTap: () {
-        Provide.value<CategoryProvider>(context).setGoodsList(1, index);
+        Provide.value<CategoryProvider>(context).setRightTopCategory(index);
       },
       child: Container(
         alignment: Alignment.center,
@@ -174,21 +164,47 @@ class CategoryGoodsList extends StatefulWidget {
 
 class _CategoryGoodsListState extends State<CategoryGoodsList> {
   List<CategoryGoodsListData> list;
+  GlobalKey<RefreshFooterState> _footerKey = GlobalKey<RefreshFooterState>();
+  GlobalKey<RefreshHeaderState> _headerKey = GlobalKey<RefreshHeaderState>();
+  ScrollController _constroller = ScrollController();
 
   @override
   Widget build(BuildContext context) {
     return Provide<CategoryProvider>(
       builder: (context, child, data) {
-        if (data.categoryGoodsList.length == 0) {
+        try {
+          var currentPage = Provide.value<CategoryProvider>(context).page;
+          print("应该滚动到顶部 page:$currentPage");
+          if (currentPage == 1) {
+            _constroller.jumpTo(0.0);
+          }
+        } catch (e) {
+          print('进入页面第一次初始化：${e}');
+        }
+
+        if (data.rightGoodsList.length == 0) {
           return Center(
             child: Text("暂无数据..."),
           );
-        } else
-          return ListView.builder(
-            itemBuilder: (context, index) =>
-                _itemWidget(data.categoryGoodsList[index]),
-            itemCount: data.categoryGoodsList.length,
+        } else {
+          var easyRefresh = EasyRefresh(
+            child: ListView.builder(
+              controller: _constroller,
+              itemBuilder: (context, index) =>
+                  _itemWidget(data.rightGoodsList[index]),
+              itemCount: data.rightGoodsList.length,
+            ),
+            loadMore: () {
+              print('分类也加载更多');
+              Provide.value<CategoryProvider>(context).loadMoreGoodsList();
+            },
+            refreshHeader: getDefaultHeader(_headerKey),
+            refreshFooter: getDefaultFooter(_footerKey,
+                Provide.value<CategoryProvider>(context).noMoreText),
           );
+
+          return easyRefresh;
+        }
       },
     );
   }

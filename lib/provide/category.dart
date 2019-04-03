@@ -5,42 +5,56 @@ import 'package:flutter_shop/service/service_method.dart';
 
 class CategoryProvider with ChangeNotifier {
   int leftIndex = 0;
-  int rightTopIndex = 1;
+  int rightTopIndex = 0;
+
+  int page = 1;
+
+  String noMoreText = "没有更多数据了";
 
   //左侧导航
-  List<CategoryData> categoryList = [];
+  List<CategoryData> leftCategoryList = [];
 
   //右侧头部导航
-  List<CategoryDataBxmallsubdto> childCategoryList = [];
+  List<CategoryDataBxmallsubdto> rightTopCategoryList = [];
 
   //右侧商品列表
-  List<CategoryGoodsListData> categoryGoodsList = [];
+  List<CategoryGoodsListData> rightGoodsList = [];
 
-  setCategoryList(List<CategoryData> list) {
-    categoryList = list ?? [];
-    notifyListeners();
+  initLeftList(List<CategoryData> list) {
+    leftCategoryList = list ?? [];
+    setLeftCategoryList(0);
   }
 
-
-  setChildCategory(int index) {
-    CategoryDataBxmallsubdto all = CategoryDataBxmallsubdto(
-        mallsubid: '00',
-        mallcategoryid: '00',
-        comments: 'null',
-        mallsubname: '全部');
-
+  setLeftCategoryList(int index) {
     leftIndex = index;
-    childCategoryList = [all];
-    childCategoryList.addAll(categoryList[leftIndex].bxmallsubdto);
-    notifyListeners();
+    setRightTopCategory(0);
   }
 
-  //点击大类时，根据大类ID信息获取商品列表
-  setGoodsList(int page, int index) {
-    CategoryDataBxmallsubdto item = childCategoryList[index];
-    getMallGoods(item.mallcategoryid, item.mallsubid, page).then((value) {
-      categoryGoodsList = value ?? [];
-      rightTopIndex = index;
+  setRightTopCategory(int index) {
+    rightTopIndex = index;
+    page = 1;
+    rightTopCategoryList.clear();
+    rightTopCategoryList.addAll(leftCategoryList[leftIndex].bxmallsubdto);
+    rightGoodsList.clear();
+    setGoodsList(page);
+  }
+
+  loadMoreGoodsList() {
+    setGoodsList(page + 1);
+  }
+
+  setGoodsList(int currentPage) {
+    CategoryDataBxmallsubdto item = rightTopCategoryList[rightTopIndex];
+    getMallGoods(item.mallcategoryid, item.mallsubid, currentPage)
+        .then((value) {
+      page = currentPage;
+      if (value != null) {
+        rightGoodsList.addAll(value);
+        noMoreText = "后面还有更多哦~~";
+      } else {
+        rightGoodsList.addAll([]);
+        noMoreText = "没有更多数据了";
+      }
       notifyListeners();
     });
   }

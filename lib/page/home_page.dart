@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_shop/config/cached_network_img.dart';
+import 'package:flutter_shop/config/easyrefresh_config.dart';
 import 'package:flutter_shop/ui/base_widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -127,34 +128,11 @@ class _HomePageState extends State<HomePage>
                 onRefresh: () async {
                   print('下拉刷新，，，，，，');
                 },
-                refreshFooter: ClassicsFooter(
-                  key: _footerKey,
-                  loadText: "上拉加载",
-                  loadReadyText: "释放加载",
-                  loadingText: "正在加载",
-                  loadedText: "加载结束",
-                  noMoreText: "没有更多数据",
-                  moreInfo: "更新于 %T",
-                  bgColor: Colors.transparent,
-                  textColor: Colors.pink,
-                  moreInfoColor: Colors.pink,
-                  showMore: true,
-                ),
+                refreshFooter: getDefaultFooter(_footerKey,"没有更多数据了！！！"),
 //                refreshHeader: BallPulseHeader(
 //                  key: _headerKey,
 //                ),
-                refreshHeader: ClassicsHeader(
-                  key: _headerKey,
-                  refreshText: "下拉刷新",
-                  refreshReadyText: "释放刷新",
-                  refreshingText: "正在刷新...",
-                  refreshedText: "刷新结束",
-                  moreInfo: "更新于 %T",
-                  bgColor: Colors.transparent,
-                  textColor: Colors.pink,
-                  moreInfoColor: Colors.pink,
-                  showMore: true,
-                ),
+                refreshHeader: getDefaultHeader(_headerKey),
               );
             } else {
               return Center(
